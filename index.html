@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f8">
+<title>HYORA STUDY</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#050508;color:#f5f7ff;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
+.app{max-width:520px;margin:auto;padding:24px 18px 40px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.logo{font-size:25px;font-weight:800;letter-spacing:-1px}
+.icon{width:44px;height:44px;border-radius:14px;background:#0d0d14;box-shadow:0 0 18px #7c3cff22, inset 0 0 0 1px #ffffff0a;font-size:20px}
+.card{background:#0d0d14;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 2px 14px #00000009}
+h2{font-size:17px;margin:0 0 16px}
+.progress-top{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
+.bar{height:9px;background:#20202b;border-radius:9px;overflow:hidden;margin-top:11px}
+.fill{height:100%;background:#171717;border-radius:9px;width:0;transition:.2s}
+.task{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #eee}
+.task:last-child{border-bottom:0}
+.check{width:24px;height:24px;border:2px solid #3a3a4b;border-radius:8px;background:#0d0d14;flex:none}
+.check.done{background:#00f5d4;border-color:#00f5d4;color:#050508;box-shadow:0 0 12px #00f5d477}
+.tasktext{flex:1;min-width:0}
+.tasktext.done{text-decoration:line-through;color:#999}
+.small{font-size:12px;color:#8f91a8;margin-top:3px}
+.row{display:flex;gap:8px}
+.primary,.secondary{padding:13px 15px;border-radius:14px;font-weight:700}
+.primary{background:#0ff0d0;color:#050508;box-shadow:0 0 16px #00f5d455;flex:1}
+.secondary{background:#f1f1f3;color:#222}
+input,select{width:100%;padding:13px 14px;border:1px solid #303043;border-radius:13px;background:#0d0d14;outline:none}
+input:focus,select:focus{border-color:#777}
+.subject{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #eee}
+.subject:last-child{border-bottom:0}
+.subject-name{flex:1;font-weight:650}
+.weight{width:76px}
+.delete{background:#171722;color:#8f91a8;border:1px solid #2a2a3a;width:38px;height:38px;border-radius:11px}
+.timer{text-align:center}
+.time{font-size:48px;font-weight:800;letter-spacing:-2px;margin:4px 0 15px}
+.timer .row button{flex:1}
+.empty{color:#8f91a8;font-size:14px;text-align:center;padding:10px 0}
+.modal-bg{display:none;position:fixed;inset:0;background:#000b14;backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;padding:12px;z-index:10}
+.modal-bg.show{display:flex}
+.modal{width:min(520px,100%);background:#0d0d14;border-radius:24px;padding:20px}
+.modal h3{margin:0 0 15px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.modal-actions button{flex:1}
+.nav{position:sticky;bottom:10px;background:#0d0d14;border-radius:18px;padding:8px;display:flex;gap:5px;box-shadow:0 5px 24px #0002}
+.nav button{flex:1;background:transparent;padding:10px 5px;border-radius:12px;color:#888;font-size:12px}
+.nav button.active{background:#181824;color:#00f5d4;box-shadow:0 0 12px #00f5d433;font-weight:700}
+.section{display:none}.section.active{display:block}
+
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background:
+radial-gradient(circle at 15% 15%,#7c3cff22 0,transparent 28%),
+radial-gradient(circle at 85% 35%,#00f5d422 0,transparent 25%),
+radial-gradient(circle at 50% 100%,#ff2bd622 0,transparent 30%),
+repeating-linear-gradient(115deg,transparent 0 38px,#ffffff03 39px 40px);
+mix-blend-mode:screen}
+.logo{text-shadow:0 0 8px #00f5d4,0 0 22px #7c3cff;letter-spacing:1px}
+h2{color:#f5f7ff;text-shadow:0 0 9px #7c3cff44}
+.time{text-shadow:0 0 8px #00f5d4,0 0 24px #00f5d444}
+.fill{background:linear-gradient(90deg,#7c3cff,#00f5d4);box-shadow:0 0 12px #00f5d4}
+''</style>
+</head>
+<body>
+<div class="app">
+  <div class="header"><div class="logo">HYORA STUDY</div><button class="icon" onclick="openSettings()">⚙️</button></div>
+
+  <section id="home" class="section active">
+    <div class="card">
+      <div class="progress-top"><span>오늘의 공부</span><span id="progressText">0%</span></div>
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <div class="card">
+      <h2>오늘 할 일</h2>
+      <div id="taskList"></div>
+      <div class="row" style="margin-top:14px"><button class="primary" onclick="openTask()">＋ 할 일 추가</button></div>
+    </div>
+    <div class="card timer">
+      <h2>공부 타이머</h2>
+      <div class="time" id="time">00:00:00</div>
+      <div class="row">
+        <button class="primary" id="startBtn" onclick="toggleTimer()">시작</button>
+        <button class="secondary" onclick="resetTimer()">초기화</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="subjects" class="section">
+    <div class="card">
+      <h2>과목 설정</h2>
+      <div id="subjectList"></div>
+      <div class="row" style="margin-top:14px"><button class="primary" onclick="addSubject()">＋ 과목 추가</button></div>
+    </div>
+  </section>
+
+  <section id="stats" class="section">
+    <div class="card">
+      <h2>공부 통계</h2>
+      <div class="progress-top"><span>총 공부 시간</span><span id="totalTime">0분</span></div>
+      <div class="progress-top" style="margin-top:18px"><span>완료한 할 일</span><span id="doneCount">0 / 0</span></div>
+    </div>
+  </section>
+
+  <div class="nav">
+    <button class="active" onclick="showSection('home',this)">홈</button>
+    <button onclick="showSection('subjects',this)">과목</button>
+    <button onclick="showSection('stats',this)">통계</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="taskModal">
+  <div class="modal">
+    <h3 id="taskTitle">할 일 추가</h3>
+    <input id="taskInput" placeholder="할 일을 입력하세요">
+    <select id="taskSubject" style="margin-top:9px"></select>
+    <div class="modal-actions"><button class="secondary" onclick="closeModal('taskModal')">취소</button><button class="primary" onclick="saveTask()">저장</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <h3>설정</h3>
+    <p style="color:#a6a8bf;font-size:14px">할 일과 과목은 직접 추가·수정·삭제할 수 있어요.</p>
+    <div class="modal-actions"><button class="primary" onclick="closeModal('settingsModal')">닫기</button></div>
+  </div>
+</div>
+
+<script>
+const KEY='hyora-study-v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ tasks:[],subjects:[{id:1,name:'수학',weight:25},{id:2,name:'영어',weight:25},{id:3,name:'국어',weight:25},{id:4,name:'과학',weight:25}],
+ totalSeconds:0
+};
+let editingId=null, timer=null, elapsed=0;
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render();}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function render(){
+ const list=document.getElementById('taskList');
+ if(!data.tasks.length) list.innerHTML='<div class="empty">아직 할 일이 없어요.<br>＋ 할 일 추가로 직접 만들어보세요.</div>';
+ else list.innerHTML=data.tasks.map(t=>`
+ <div class="task">
+  <button class="check ${t.done?'done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</button>
+  <div class="tasktext ${t.done?'done':''}" onclick="editTask(${t.id})">${esc(t.text)}<div class="small">${esc((data.subjects.find(s=>s.id===t.subjectId)||{}).name||'과목 없음')}</div></div>
+  <button class="delete" onclick="deleteTask(${t.id})">×</button>
+ </div>`).join('');
+ const done=data.tasks.filter(t=>t.done).length,pct=data.tasks.length?Math.round(done/data.tasks.length*100):0;
+ document.getElementById('progressText').textContent=pct+'%';document.getElementById('progressFill').style.width=pct+'%';
+ document.getElementById('doneCount').textContent=done+' / '+data.tasks.length;
+ document.getElementById('totalTime').textContent=Math.floor(data.totalSeconds/60)+'분';
+ document.getElementById('subjectList').innerHTML=data.subjects.map(s=>`
+ <div class="subject"><div class="subject-name">${esc(s.name)}</div>
+ <input class="weight" type="number" min="0" max="100" value="${s.weight}" onchange="setWeight(${s.id},this.value)">
+ <span style="font-size:12px;color:#888">%</span><button class="delete" onclick="deleteSubject(${s.id})">×</button></div>`).join('');
+ const sel=document.getElementById('taskSubject');
+ sel.innerHTML=data.subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+}
+function toggleTask(id){let t=data.tasks.find(x=>x.id===id);if(t){t.done=!t.done;save();}}
+function deleteTask(id){data.tasks=data.tasks.filter(x=>x.id!==id);save();}
+function openTask(id=null){editingId=id;document.getElementById('taskTitle').textContent=id?'할 일 수정':'할 일 추가';document.getElementById('taskInput').value=id?data.tasks.find(t=>t.id===id).text:'';document.getElementById('taskModal').classList.add('show');if(id)document.getElementById('taskSubject').value=data.tasks.find(t=>t.id===id).subjectId;}
+function editTask(id){openTask(id)}
+function saveTask(){let text=document.getElementById('taskInput').value.trim();if(!text)return alert('할 일을 입력해 주세요.');let subjectId=Number(document.getElementById('taskSubject').value);if(editingId){let t=data.tasks.find(x=>x.id===editingId);t.text=text;t.subjectId=subjectId}else data.tasks.push({id:Date.now(),text,subjectId,done:false});closeModal('taskModal');save();}
+function addSubject(){let name=prompt('과목 이름을 입력하세요.');if(!name||!name.trim())return;data.subjects.push({id:Date.now(),name:name.trim(),weight:0});save();}
+function deleteSubject(id){if(data.tasks.some(t=>t.subjectId===id))return alert('이 과목을 사용하는 할 일이 있어요. 할 일을 먼저 다른 과목으로 바꿔주세요.');data.subjects=data.subjects.filter(s=>s.id!==id);save();}
+function setWeight(id,v){let n=Math.max(0,Math.min(100,Number(v)||0));let s=data.subjects.find(x=>x.id===id);if(s){s.weight=n;localStorage.setItem(KEY,JSON.stringify(data));}}
+function showSection(id,btn){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function openSettings(){document.getElementById('settingsModal').classList.add('show')}
+function toggleTimer(){if(timer){clearInterval(timer);timer=null;document.getElementById('startBtn').textContent='시작';return}document.getElementById('startBtn').textContent='일시정지';timer=setInterval(()=>{elapsed++;data.totalSeconds++;updateClock();if(elapsed%5===0)localStorage.setItem(KEY,JSON.stringify(data));},1000);}
+function resetTimer(){if(timer){clearInterval(timer);timer=null}elapsed=0;updateClock();document.getElementById('startBtn').textContent='시작';localStorage.setItem(KEY,JSON.stringify(data));render();}
+function updateClock(){let h=Math.floor(elapsed/3600),m=Math.floor(elapsed%3600/60),s=elapsed%60;document.getElementById('time').textContent=[h,m,s].map(x=>String(x).padStart(2,'0')).join(':');}
+render();
+</script>
+</body>
+</html>
