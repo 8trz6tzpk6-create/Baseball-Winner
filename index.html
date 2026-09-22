@@ -1,179 +1,64 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f8">
-<title>HYORA STUDY</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#050508;color:#f5f7ff;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
-button,input,select{font:inherit}
-button{border:0;cursor:pointer}
-.app{max-width:520px;margin:auto;padding:24px 18px 40px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.logo{font-size:25px;font-weight:800;letter-spacing:-1px}
-.icon{width:44px;height:44px;border-radius:14px;background:#0d0d14;box-shadow:0 0 18px #7c3cff22, inset 0 0 0 1px #ffffff0a;font-size:20px}
-.card{background:#0d0d14;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 2px 14px #00000009}
-h2{font-size:17px;margin:0 0 16px}
-.progress-top{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
-.bar{height:9px;background:#20202b;border-radius:9px;overflow:hidden;margin-top:11px}
-.fill{height:100%;background:#171717;border-radius:9px;width:0;transition:.2s}
-.task{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #eee}
-.task:last-child{border-bottom:0}
-.check{width:24px;height:24px;border:2px solid #3a3a4b;border-radius:8px;background:#0d0d14;flex:none}
-.check.done{background:#00f5d4;border-color:#00f5d4;color:#050508;box-shadow:0 0 12px #00f5d477}
-.tasktext{flex:1;min-width:0}
-.tasktext.done{text-decoration:line-through;color:#999}
-.small{font-size:12px;color:#8f91a8;margin-top:3px}
-.row{display:flex;gap:8px}
-.primary,.secondary{padding:13px 15px;border-radius:14px;font-weight:700}
-.primary{background:#0ff0d0;color:#050508;box-shadow:0 0 16px #00f5d455;flex:1}
-.secondary{background:#f1f1f3;color:#222}
-input,select{width:100%;padding:13px 14px;border:1px solid #303043;border-radius:13px;background:#0d0d14;outline:none}
-input:focus,select:focus{border-color:#777}
-.subject{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #eee}
-.subject:last-child{border-bottom:0}
-.subject-name{flex:1;font-weight:650}
-.weight{width:76px}
-.delete{background:#171722;color:#8f91a8;border:1px solid #2a2a3a;width:38px;height:38px;border-radius:11px}
-.timer{text-align:center}
-.time{font-size:48px;font-weight:800;letter-spacing:-2px;margin:4px 0 15px}
-.timer .row button{flex:1}
-.empty{color:#8f91a8;font-size:14px;text-align:center;padding:10px 0}
-.modal-bg{display:none;position:fixed;inset:0;background:#000b14;backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;padding:12px;z-index:10}
-.modal-bg.show{display:flex}
-.modal{width:min(520px,100%);background:#0d0d14;border-radius:24px;padding:20px}
-.modal h3{margin:0 0 15px}
-.modal-actions{display:flex;gap:8px;margin-top:12px}
-.modal-actions button{flex:1}
-.nav{position:sticky;bottom:10px;background:#0d0d14;border-radius:18px;padding:8px;display:flex;gap:5px;box-shadow:0 5px 24px #0002}
-.nav button{flex:1;background:transparent;padding:10px 5px;border-radius:12px;color:#888;font-size:12px}
-.nav button.active{background:#181824;color:#00f5d4;box-shadow:0 0 12px #00f5d433;font-weight:700}
-.section{display:none}.section.active{display:block}
-
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background:
-radial-gradient(circle at 15% 15%,#7c3cff22 0,transparent 28%),
-radial-gradient(circle at 85% 35%,#00f5d422 0,transparent 25%),
-radial-gradient(circle at 50% 100%,#ff2bd622 0,transparent 30%),
-repeating-linear-gradient(115deg,transparent 0 38px,#ffffff03 39px 40px);
-mix-blend-mode:screen}
-.logo{text-shadow:0 0 8px #00f5d4,0 0 22px #7c3cff;letter-spacing:1px}
-h2{color:#f5f7ff;text-shadow:0 0 9px #7c3cff44}
-.time{text-shadow:0 0 8px #00f5d4,0 0 24px #00f5d444}
-.fill{background:linear-gradient(90deg,#7c3cff,#00f5d4);box-shadow:0 0 12px #00f5d4}
-''</style>
-</head>
-<body>
-<div class="app">
-  <div class="header"><div class="logo">HYORA STUDY</div><button class="icon" onclick="openSettings()">⚙️</button></div>
-
-  <section id="home" class="section active">
-    <div class="card">
-      <div class="progress-top"><span>오늘의 공부</span><span id="progressText">0%</span></div>
-      <div class="bar"><div class="fill" id="progressFill"></div></div>
-    </div>
-    <div class="card">
-      <h2>오늘 할 일</h2>
-      <div id="taskList"></div>
-      <div class="row" style="margin-top:14px"><button class="primary" onclick="openTask()">＋ 할 일 추가</button></div>
-    </div>
-    <div class="card timer">
-      <h2>공부 타이머</h2>
-      <div class="time" id="time">00:00:00</div>
-      <div class="row">
-        <button class="primary" id="startBtn" onclick="toggleTimer()">시작</button>
-        <button class="secondary" onclick="resetTimer()">초기화</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="subjects" class="section">
-    <div class="card">
-      <h2>과목 설정</h2>
-      <div id="subjectList"></div>
-      <div class="row" style="margin-top:14px"><button class="primary" onclick="addSubject()">＋ 과목 추가</button></div>
-    </div>
-  </section>
-
-  <section id="stats" class="section">
-    <div class="card">
-      <h2>공부 통계</h2>
-      <div class="progress-top"><span>총 공부 시간</span><span id="totalTime">0분</span></div>
-      <div class="progress-top" style="margin-top:18px"><span>완료한 할 일</span><span id="doneCount">0 / 0</span></div>
-    </div>
-  </section>
-
-  <div class="nav">
-    <button class="active" onclick="showSection('home',this)">홈</button>
-    <button onclick="showSection('subjects',this)">과목</button>
-    <button onclick="showSection('stats',this)">통계</button>
-  </div>
-</div>
-
-<div class="modal-bg" id="taskModal">
-  <div class="modal">
-    <h3 id="taskTitle">할 일 추가</h3>
-    <input id="taskInput" placeholder="할 일을 입력하세요">
-    <select id="taskSubject" style="margin-top:9px"></select>
-    <div class="modal-actions"><button class="secondary" onclick="closeModal('taskModal')">취소</button><button class="primary" onclick="saveTask()">저장</button></div>
-  </div>
-</div>
-
-<div class="modal-bg" id="settingsModal">
-  <div class="modal">
-    <h3>설정</h3>
-    <p style="color:#a6a8bf;font-size:14px">할 일과 과목은 직접 추가·수정·삭제할 수 있어요.</p>
-    <div class="modal-actions"><button class="primary" onclick="closeModal('settingsModal')">닫기</button></div>
-  </div>
-</div>
-
-<script>
-const KEY='hyora-study-v1';
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
- tasks:[],subjects:[{id:1,name:'수학',weight:25},{id:2,name:'영어',weight:25},{id:3,name:'국어',weight:25},{id:4,name:'과학',weight:25}],
- totalSeconds:0
-};
-let editingId=null, timer=null, elapsed=0;
-
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render();}
-function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-function render(){
- const list=document.getElementById('taskList');
- if(!data.tasks.length) list.innerHTML='<div class="empty">아직 할 일이 없어요.<br>＋ 할 일 추가로 직접 만들어보세요.</div>';
- else list.innerHTML=data.tasks.map(t=>`
- <div class="task">
-  <button class="check ${t.done?'done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</button>
-  <div class="tasktext ${t.done?'done':''}" onclick="editTask(${t.id})">${esc(t.text)}<div class="small">${esc((data.subjects.find(s=>s.id===t.subjectId)||{}).name||'과목 없음')}</div></div>
-  <button class="delete" onclick="deleteTask(${t.id})">×</button>
- </div>`).join('');
- const done=data.tasks.filter(t=>t.done).length,pct=data.tasks.length?Math.round(done/data.tasks.length*100):0;
- document.getElementById('progressText').textContent=pct+'%';document.getElementById('progressFill').style.width=pct+'%';
- document.getElementById('doneCount').textContent=done+' / '+data.tasks.length;
- document.getElementById('totalTime').textContent=Math.floor(data.totalSeconds/60)+'분';
- document.getElementById('subjectList').innerHTML=data.subjects.map(s=>`
- <div class="subject"><div class="subject-name">${esc(s.name)}</div>
- <input class="weight" type="number" min="0" max="100" value="${s.weight}" onchange="setWeight(${s.id},this.value)">
- <span style="font-size:12px;color:#888">%</span><button class="delete" onclick="deleteSubject(${s.id})">×</button></div>`).join('');
- const sel=document.getElementById('taskSubject');
- sel.innerHTML=data.subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
-}
-function toggleTask(id){let t=data.tasks.find(x=>x.id===id);if(t){t.done=!t.done;save();}}
-function deleteTask(id){data.tasks=data.tasks.filter(x=>x.id!==id);save();}
-function openTask(id=null){editingId=id;document.getElementById('taskTitle').textContent=id?'할 일 수정':'할 일 추가';document.getElementById('taskInput').value=id?data.tasks.find(t=>t.id===id).text:'';document.getElementById('taskModal').classList.add('show');if(id)document.getElementById('taskSubject').value=data.tasks.find(t=>t.id===id).subjectId;}
-function editTask(id){openTask(id)}
-function saveTask(){let text=document.getElementById('taskInput').value.trim();if(!text)return alert('할 일을 입력해 주세요.');let subjectId=Number(document.getElementById('taskSubject').value);if(editingId){let t=data.tasks.find(x=>x.id===editingId);t.text=text;t.subjectId=subjectId}else data.tasks.push({id:Date.now(),text,subjectId,done:false});closeModal('taskModal');save();}
-function addSubject(){let name=prompt('과목 이름을 입력하세요.');if(!name||!name.trim())return;data.subjects.push({id:Date.now(),name:name.trim(),weight:0});save();}
-function deleteSubject(id){if(data.tasks.some(t=>t.subjectId===id))return alert('이 과목을 사용하는 할 일이 있어요. 할 일을 먼저 다른 과목으로 바꿔주세요.');data.subjects=data.subjects.filter(s=>s.id!==id);save();}
-function setWeight(id,v){let n=Math.max(0,Math.min(100,Number(v)||0));let s=data.subjects.find(x=>x.id===id);if(s){s.weight=n;localStorage.setItem(KEY,JSON.stringify(data));}}
-function showSection(id,btn){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
-function openSettings(){document.getElementById('settingsModal').classList.add('show')}
-function toggleTimer(){if(timer){clearInterval(timer);timer=null;document.getElementById('startBtn').textContent='시작';return}document.getElementById('startBtn').textContent='일시정지';timer=setInterval(()=>{elapsed++;data.totalSeconds++;updateClock();if(elapsed%5===0)localStorage.setItem(KEY,JSON.stringify(data));},1000);}
-function resetTimer(){if(timer){clearInterval(timer);timer=null}elapsed=0;updateClock();document.getElementById('startBtn').textContent='시작';localStorage.setItem(KEY,JSON.stringify(data));render();}
-function updateClock(){let h=Math.floor(elapsed/3600),m=Math.floor(elapsed%3600/60),s=elapsed%60;document.getElementById('time').textContent=[h,m,s].map(x=>String(x).padStart(2,'0')).join(':');}
-render();
-</script>
-</body>
-</html>
+https://ebook.mirae-n.com/@kb2068/121
+https://github.com/8trz6tzpk6-create/Hyora-study
+https://vercel.com/hyora-study/hyora-study/FA7n6GzH7aqDPaWum7yu99KWb1Gs
+https://m.naver.com/
+https://api-ao.adison.co/subscribe/bridge?click_key=MTc4ODA2MzQ1NzYzNjo-PDpfX2lkbm9fX2V0RnRvOj48Okt1dHk4VHhyTVgxbjRzNUhMR3NhbjFYRA
+https://www.google.com/search?q=2015%EA%B0%9C%EC%A0%95+%EB%B9%84%EC%83%81+%EA%B5%90%EA%B3%BC%EC%84%9C+pdf&client=safari&hs=A8I&sca_esv=842869c4d90cbdd0&hl=ko-kr&biw=393&bih=695&ei=hdPPabSKIbzN1e8P2ID1iQE&oq=2015%EA%B0%9C%EC%A0%95+%EB%B9%84%EC%83%81+%EA%B5%90%EA%B3%BC%EC%84%9C+pdf&gs_lp=EhNtb2JpbGUtZ3dzLXdpei1zZXJwIh8yMDE16rCc7KCVIOu5hOyDgSDqtZDqs7zshJwgcGRmMggQABiABBiiBDIFEAAY7wUyBRAAGO8FSJqVAVC1DljmkgFwEngAkAECmAGFA6ABlCuqAQgwLjIzLjQuM7gBA8gBAPgBBfgBAZgCLqAC7iioAgPCAgoQABiwAxjWBBhHwgIEEAAYHsICBhAAGAgYHsICBRAhGKABwgICECnCAggQABiABBixA8ICBRAAGIAEwgILEC4YgAQYsQMYgwHCAgsQABiABBixAxiDAcICCBAuGIAEGLEDwgIKEAAYgAQYQxiKBZgDBPEFHob8I0Ko9ziIBgGQBgqSBwkxOC4yMi40LjKgB-mFAbIHCDAuMjIuNC4yuAekKMIHCDAuOS4zNi4xyAefAYAIAA&sclient=mobile-gws-wiz-serp
+https://scp11.com/amall/?search=%EB%A6%AC%EB%B2%84%ED%92%80&x=0&y=0
+https://link.coupang.com/re3/AFYOUTUBE?pageKey=8515052854&ctag=8515052854&itemId=24650487303&vendorItemId=91661099260&subparam=YT3-mp-zxeg7L32ocPilfwj_rSYGo7ABFexcUUdrlgOUZm_ITvcm61ruXQ4RCgniqIHrPZIu7UxvpsdErq1lniXEyI0fDlSO0H0&nohelpkit=1
+https://ko.aliexpress.com/item/1005010651850463.html?src=google&src=google&albch=apprmkt&albagn=182499396&albcp=22388205295&albag=&albad=&aff_short_key=_oFgTQeV&isdl=y&aff_platform=true&traffic_server_nav=true&gad_campaignid=22384687625&wbraid=ClMKCAjwv-LOBhAqEkMADfTDQ7Zgjh6V7HBkYgwwjS_4z50FwIe1bTPKPLyXgzJuzZzY9a3oSJvaS1YNNTkqkaKebOor7rYRS60ZiWrmRGHEGgJf0Q
+https://link.coupang.com/re3/AFYOUTUBE?pageKey=9466721303&ctag=9466721303&itemId=28173369731&vendorItemId=95128181535&subparam=YT3-UGTtcmqMPUxs6o3fL8fMWAe1OL8KKMtOw4BE7JrtOymoknsczxr9ssB363dxjk-hu3ccf0j-75TzpBOiJF6h_DxMYprn0voy1pBxApiSLW4&nohelpkit=1
+https://www.tenorshare.kr/products/4ukey-unlocker.html?utm_source=youtube&utm_medium=social&utm_campaign=4uKey+for+iOS&utm_term=tenorsharekorea&utm_content=lJcghWMGrEU-jwy-20251212
+https://solvook.com/event/260417-student-expert-free-meta?utm_source=meta-paid&utm_medium=Instagram_Stories&utm_campaign=nbd-26-1q-traffic&utm_content=120242227458970353&term=120242227875800353&utm_id=120242227458950353&utm_term=120242227458970353&fbclid=PAdGRleARaRZpleHRuA2FlbQEwAGFkaWQBqy-tRpfwQXNydGMGYXBwX2lkDzEyNDAyNDU3NDI4NzQxNAABp9GN4UjalBxgpZAbHF3xurXgLWP7XoHMNiY6YfoPyZtbTO_B1YK7kUZeSawq_aem_fX2tAUB6gUurPKlxNQDGig
+https://docs.google.com/forms/d/e/1FAIpQLSdYiPZ2Ctk6T0NPpBT4yE9TCQSosOHVsoNFFxF6qWpWUJ-O-g/viewform
+https://heypoca.com/photoCard/tempGroup?serviceNo=234&fromQR=Y
+https://heypoca.com/order/1048746987?serviceNo=234
+https://www.kbosnack.com/
+https://www.google.com/aclk?sa=L&ai=DChsSEwjjv4Lf5JqUAxXaVQ8CHUBwNUcYACICCAEQARoCdGI&co=1&gclid=EAIaIQobChMI47-C3-SalAMV2lUPAh1AcDVHEAQYASABEgLE7vD_BwE&cid=CAASWeRoUTuAP_rnVd4fT0kVQqeqpkpW9s2FH6_AZAtt4Oc0Tot8aizBhO0fMBSVULsOTAjMnXhJzWssrFinm4pfgxydT4ahpDql7zUvDvqpqeGK-Cfa0jtFm4bU&cce=2&sig=AOD64_31c-1tKg70picCiinFamo0BQ6lKg&adurl=https://m.amoremall.com/kr/ko/product/detail%3FonlineProdSn%3D45840%26utm_source%3Dgoogle%26utm_medium%3Dda%26utm_campaign%3Dao_google_productdpa%26utm_content%3Dnotdam%26utm_campaign%3Dao_google_productdpa%26gad_campaignid%3D16796690611%26wbraid%3DCj8KCQjwntHPBhDyARIuAAE5VhToJgUvvL2K0W2Esu21ueTbeQajDwhetwPdwyD1K1_7x7tQJELKR3zLXxoC-Lk&ctype=5&ms=59DnLd8p_aU_vocmmrkTVX9lc66Bev8FeT_cMPlW76bFzpEL6Kx9YGTuGAG3V7edMTpy12mObvyEePRqTHH9KfhV4OrR0WOOzbL19DZvikkHSMM2klnFI_qG36FFiu7TOOYjgrme0wfy_FqJA45Udju-ZLvsdTzdk3ezG10TO82vDZqrquKtX2JT3F4RN1Y5jiT9KpQrYpflvjaWPN149IbnkdMLF1Ps2TSI9mSNz_Tg-2m9fW3KKj7ieftLVG_MsvroGBq7_dIHyOzq-ol09eAKDr-3wPUYvTrgOxMEQFCO5rtAYpAlHYEYePbMpdKS7-bW_gJY3qiT5c0bxtyJxw&nx=33&ny=216&nb=49
+https://ko.aliexpress.com/item/1005011784866334.html?_randl_currency=KRW&_randl_shipto=KR&src=google&src=google&albch=apprmkt&albagn=182499396&albcp=22388205295&albag=&albad=&aff_short_key=_oFgTQeV&isdl=y&aff_platform=true&traffic_server_nav=true&gad_campaignid=22384687625&wbraid=ClMKCAjwh-HPBhBgEkMANoSUMw4PkMZazOWVNgwaclBtAzlCIIq164aMBhaZDdkysVSu8tgUrFSZnJTkP1VzpgKy5k8vJ-qP5EIrRmCyXx86GgKTuA
+https://survey.eduro.go.kr/nxui/index.html
+https://www.temu.com/ul/kuiper/un1.html?subj=feed-un&_bg_fs=1&_p_mat1_type=1&_p_jump_id=725&_x_vst_scene=adg&goods_id=601103209544321&adg_ctx=a-9c0bdd94~t-ikkf~f-3d9632e7&_x_ns_adx_req_id=01fe5b74-c531-43b0-be5f-c8571a37c9dc&conn_type=WIFI&_x_ads_creative_id=4117503848000113&_x_ads_sub_channel=other&_x_ns_goods_id=601103209544321&_p_rfs=1&rank_req_id=01fe5b74-c531-43b0-be5f-c8571a37c9dc&viewability=0.97&_x_ads_csite=banner_image&_x_ns_rpg_type=1&_x_ads_account=1534098184&_x_ads_set=2117503848000012&_x_ns_adx_auction_id=4waLb4Wqo-f6wBmanwqThw&ads_w=393&_x_ads_id=3117503848000012&plcmt_c1=&_x_ns_gid=601103209544321&_x_ads_channel=adx_google&_x_ns_adx_p_type=1&placement=1502833178&_x_cid=mat_-1&_x_ns_plat=app&ads_h=759&is_retain=1
+https://padlet.com/havengmargaux/padlet-dmc2uitwusm6stto
+https://www.coupang.com/
+https://app.appsflyer.com/id1509450845?pid=aarki_int&af_siteid=1617391485&c=KR_Churn_PU_260105_iOS&af_c_id=1017403470637779583&af_adset=0&af_ad_id=80e78afe617f2b31160b4c1fef7c0876&af_ad=Video_ci_legendaryskin_Timekeeper_kr_1080x1920&af_channel=applovin&is_retargeting=true&af_reengagement_window=30d&af_inactivity_window=7d&af_click_lookback=7d&clickid=d7eegbecdc0hh41VEFzi&idfa=&impid=applovin_asia%3A598db78f-d824-4a7e-8b63-fb1b474147c3&af_lang=ko&af_ua=Mozilla%2F5.0%20%28iPhone%3B%20CPU%20iPhone%20OS%2018_7%20like%20Mac%20OS%20X%29%20AppleWebKit%2F605.1.15%20%28KHTML%2C%20like%20Gecko%29%20Mobile%2F15E148&idfv=09A41A69-2AE2-4D19-81FA-F4F5A7CB3AEB&af_ip=211.36.154.169&af_os=26.3&af_model=iphone&af_sub_siteid=7149e98f9426a8c549ded068cc9d5c8b&af_sig=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiY2xpY2siXSwiaWF0IjoxNzgwODAzMDI5LCJpc3MiOiJhYXJraV9pbnQiLCJqdGkiOiJkN2VlZ2JlY2RjMGhoNDFWRUZ6aSIsInBhcmFtcyI6eyJhZl9pcCI6IjIxMS4zNi4xNTQuMTY5IiwiYWZfc2l0ZWlkIjoiMTYxNzM5MTQ4NSIsImFmX3VhIjoiTW96aWxsYS81LjAgKGlQaG9uZTsgQ1BVIGlQaG9uZSBPUyAxOF83IGxpa2UgTWFjIE9TIFgpIEFwcGxlV2ViS2l0LzYwNS4xLjE1IChLSFRNTCwgbGlrZSBHZWNrbykgTW9iaWxlLzE1RTE0OCIsImMiOiJLUl9DaHVybl9QVV8yNjAxMDVfaU9TIiwiaWRmdiI6IjA5QTQxQTY5LTJBRTItNEQxOS04MUZBLUY0RjVBN0NCM0FFQiIsInBpZCI6ImFhcmtpX2ludCJ9LCJzdWIiOiJpZDE1MDk0NTA4NDUiLCJ2ZXIiOiJ2MSJ9.qYmOTHn0c_nHzy2ZS3kUYHm83VYeYTZD_AIy3kAIbEI&af_engagement_type=click_to_app
+https://webchat.thecloudgate.io/webChat?brandKey=XkXOmOw7fs4BDCvB9JBHgg&channelType=chat&loginId=hyodoly16&phoneNo=01053404160&name=%EC%A3%BC%ED%9A%A8%EB%9D%BC&email=hyodoldoly%40gmail.com&device=iPhone17,3&OS=26.5
+https://m.koreabaseball.com/Member/Join/Register.aspx?division=register&appCk=true
+https://m.koreabaseball.com/Member/Join/Register.aspx?division=register&appCk=true
+https://m.koreabaseball.com/Member/Join/Finish.aspx?appCk=true
+https://kboapp.sports2i.com/Member/Login.aspx
+https://m-allstar.koreabaseball.com/
+https://ticket.interpark.com/m-ticket/Sports/GoodsInfo?SportsCode=07032&TeamCode=PE017
+https://ko.aliexpress.com/item/1005010264561279.html?_randl_currency=KRW&_randl_shipto=KR&src=google&src=google&albch=apprmkt&albagn=182499396&albcp=22388205295&albag=&albad=&aff_short_key=_oFgTQeV&isdl=y&aff_platform=true&traffic_server_nav=true&gad_campaignid=22384687625&wbraid=ClQKCQjwgO7RBhDyARJDAKUTHon74n_1NpP9dVmlxxFR3Q7ABV0WqTvLM_4-YWLvquLmMENbeWC5l8-nilY8DdDHqj0cO2z5gfikFoZksfS1EBoCOjw
+https://link.coupang.com/re3/AFYOUTUBE?pageKey=9328989508&ctag=9328989508&itemId=27751966611&vendorItemId=94712865303&subparam=YT3-JI0StpdsQ3F6rIH3yXUHBO-bQT0-wYk1Qj_91BlyWHRiuFiVuuNEaOdNFrn-UTF3VmrbrYlHz-hbwt0Pjg6HubM7pMIcRnVcmwpJ0A&nohelpkit=1
+https://b.jongro.co.kr/pop/pop251101s.asp?src=adwords&kw=004A7B&ACE_REF=adwords_s&ACE_KW=%EC%8D%B8%EB%A8%B8%EC%8A%A4%EC%BF%A8&gad_campaignid=23846828120&wbraid=ClQKCQjwxvjRBhCOARJDAD0BWy5fdxrn1vCg_xT6ai66HZOXVcx74i2xavN0ljBgIJtwrFfBqo50a1x99wWEvnAwX4wJAkgBo3OsAMD201-MkhoCa24
+https://qr.naver.com/
+https://gne.bodaedu.kr/invite/189071/594773390
+https://sg-event.personaly.bid/rtb/click?id=YnRyAgkAAAGfRk3_NwAaEY4AAAAFJU3RK-1mQm6ty-XsQnDNUQACc2cBAAABAAAAAAA9HmEAAAEAAktS
+https://ccs.play.king.com/qsWL?pid=aarki_int&af_click_lookback=7d&clickid=d7eeg9d6acfhMi9jLkZa&impid=applovin_asia%3Aeba75780-2cac-4559-acde-0c6650cf62ef&af_c_id=65906992000413248&c=CCS_ROW_iOS_test25112025_bau21122025_RT_allpayers_Video_ROAS_pbrt&idfa=&af_siteid=1617391485&af_sub_siteid=1617391485&af_ad=kr1090237kr_aark_ccs_lt_r108-e4-iceberg-twist-liveaction-ai-sim-gp-ai-disclaimer-rt_vid60_720x1280_en&af_ad_id=370cff9110ef4f6aabaecc54582aa505&af_adset=kr1090237kr_aark_ccs_lt_r108-e4-iceberg-twist-liveaction-ai-sim-gp-ai-disclaimer-rt_vid60_720x1280_en&af_ad_type=video&af_channel=applovin&af_lang=ko&af_ua=Mozilla%2F5.0%20%28iPhone%3B%20CPU%20iPhone%20OS%2018_7%20like%20Mac%20OS%20X%29%20AppleWebKit%2F605.1.15%20%28KHTML%2C%20like%20Gecko%29%20Version%2F26.5%20Mobile%2F15E148%20Safari%2F604.1&af_ip=211.36.154.93&af_os=26.5&af_model=iphone&idfv=68F0489A-0849-47CE-AE21-5CBC70569853&af_inactivity_window=28d&af_reengagement_window=28d&is_retargeting=true&af_sub1=%7B%5C%22exc%5C%22:%5C%22applovin%5C%22%7D&af_sub2=%7B%5C%22creSize%5C%22:%5C%22%5C%22%7D&af_sub4=%7B%5C%22countryCode%5C%22:%5C%22KR%5C%22%7D&af_sub5=%7B%5C%22campaignType%5C%22:%5C%22retargeting%5C%22%7D&af_force_deeplink=true&af_dp=candycrushsaga://&af_engagement_type=click_to_app&af_sig=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiY2xpY2siXSwiaWF0IjoxNzgzNjcyMDM2LCJpc3MiOiJhYXJraV9pbnQiLCJqdGkiOiJkN2VlZzlkNmFjZmhNaTlqTGtaYSIsInBhcmFtcyI6eyJhZl9pcCI6IjIxMS4zNi4xNTQuOTMiLCJhZl9zaXRlaWQiOiIxNjE3MzkxNDg1IiwiYWZfc3ViMSI6IntcXFwiZXhjXFxcIjpcXFwiYXBwbG92aW5cXFwifSIsImFmX3N1YjIiOiJ7XFxcImNyZVNpemVcXFwiOlxcXCJcXFwifSIsImFmX3N1YjQiOiJ7XFxcImNvdW50cnlDb2RlXFxcIjpcXFwiS1JcXFwifSIsImFmX3N1YjUiOiJ7XFxcImNhbXBhaWduVHlwZVxcXCI6XFxcInJldGFyZ2V0aW5nXFxcIn0iLCJhZl91YSI6Ik1vemlsbGEvNS4wIChpUGhvbmU7IENQVSBpUGhvbmUgT1MgMThfNyBsaWtlIE1hYyBPUyBYKSBBcHBsZVdlYktpdC82MDUuMS4xNSAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMjYuNSBNb2JpbGUvMTVFMTQ4IFNhZmFyaS82MDQuMSIsImMiOiJDQ1NfUk9XX2lPU190ZXN0MjUxMTIwMjVfYmF1MjExMjIwMjVfUlRfYWxscGF5ZXJzX1ZpZGVvX1JPQVNfcGJydCIsImlkZnYiOiI2OEYwNDg5QS0wODQ5LTQ3Q0UtQUUyMS01Q0JDNzA1Njk4NTMiLCJwaWQiOiJhYXJraV9pbnQifSwic3ViIjoicXNXTCIsInZlciI6InYxIn0.kCaG_jAYXuvjCPFD6WsvpJFPz208U8WMdc1pz86jt5g
+https://prdm.daisomall.co.kr/pd/pdl/SCR_PDL_0001?pdNo=1048565&recmYn=N&airbridge_referrer=airbridge%3Dtrue%26channel%3Dgoogle.adwords%26campaign%3D23712607375%26campaign_id%3D23712607375%26ad_group%3D%26ad_group_id%3D%26ad_creative%3D%26ad_creative_id%3D%26term%3D%26sub_id%3Dx%26sub_id_1%3D%26sub_id_2%3D%26sub_id_3%3D%26click_id%3D%26gclid%3D%26ad_type%3Dclick&gad_campaignid=23702586957&wbraid=ClMKCAjw39zSBhAeEkMAXSXt-t1NBpc8xChDVNuNDMEwpbEn6Xw7_9axzaQ64VSy1DAIQZhivEgl9IgDIeSFj-5j2mPCibo4x4401WCFtWiuGgIfPA
+https://support.apple.com/ko-kr/120340
+https://www.temu.com/ul/kuiper/uk1.html?subj=bundle-coupon-un&_bg_fs=1&_p_mat2_type=m3008&_p_jump_id=1178&_x_vst_scene=adg&_p_rfs=1&_x_ads_channel=kol_sparkads&_x_ads_sub_channel=kol&_x_ads_set=1872788179324017&_x_ads_id=1872788456538578&_x_ads_creative_id=1872788526850241&_x_campaign=10110302-lc-0-st&_x_cid=2112234281kol_tiktok&_x_ads_csite=TikTok&_x_bg_adid=us1553370235&_x_ns_click_id=E_C_P_CuMBe-03erva-56P11PvghXJk_IDI7bPGplEWcq_-NE2MBUm74LNodhVLJHyTSXQhN0xkpR6wWL_h5RqVOr1ijSgmoQGUUToc_LScjoNoe3v3F8ygaasu7UKPHLkAehZMwGJPashUAK8x9iWPI5qCcTpUZBizLy0NJX8BmpED7q03xkJf2LyCZMWC1Zs3FQ41FkJ8JNR6vO3VU7-oLbW_SlaHv0rRlEhNB-MSKK-f3xUmrP7-qlFfCjnbwTZG6lL5eBzdn4XIwS8LJ9JNNAtbVCYIdAPqAso4dPyE7lNAzcTne8NEEsSBHYyLjA&ttclid=E_C_P_CuMBe-03erva-56P11PvghXJk_IDI7bPGplEWcq_-NE2MBUm74LNodhVLJHyTSXQhN0xkpR6wWL_h5RqVOr1ijSgmoQGUUToc_LScjoNoe3v3F8ygaasu7UKPHLkAehZMwGJPashUAK8x9iWPI5qCcTpUZBizLy0NJX8BmpED7q03xkJf2LyCZMWC1Zs3FQ41FkJ8JNR6vO3VU7-oLbW_SlaHv0rRlEhNB-MSKK-f3xUmrP7-qlFfCjnbwTZG6lL5eBzdn4XIwS8LJ9JNNAtbVCYIdAPqAso4dPyE7lNAzcTne8NEEsSBHYyLjA&is_retain=1&adg_ctx=f-3d9632e7&_x_ns_adg_trc=ta-b17d_e8a6168ccd1fcb7ddeb1531c7ce87593b2fc9be461e1c7b899eae150bebc0422
+https://do2.kr/event-result.php
+https://support.apple.com/ko-kr/120340
+https://api-ao.adison.co/subscribe/bridge?click_key=MTc4ODA2MzA4NTI3Mzo-PDpfX2lkbm9fX2V0RnRvOj48OnNaS1piOG9USHJHQTJtQkhrU2hIMTZIdQ
+https://media.naver.com/press/662
+https://api-ao.adison.co/subscribe/bridge?click_key=MTc4ODA2MzUyNzUwMzo-PDpfX2lkbm9fX2V0RnRvOj48OmEzRHJUVUV1WjhpTVFYTEJVZ25NTVY3WA
+https://media.naver.com/press/662
+https://api-ao.adison.co/subscribe/bridge?click_key=MTc4ODA2MzU4OTg5NTo-PDpfX2lkbm9fX2V0RnRvOj48OmEzRHJUVUV1WjhpTVFYTEJVZ25NTVY3WA
+https://media.naver.com/press/586
+https://m.naver.com/
+https://media.naver.com/press/586
+https://media.naver.com/press/586
+https://media.naver.com/press/586
+https://event.adison.co/events/subscribe/7YkJKqHd8y8VY57aaG1qzMQFFB8hYDx6N9InKg4zDLJGLbm5Rz?event_trx_id=MTc4ODA2MzcwNTEzMTo6REYzOUMwMDItNEQyNy00MTRBLUFCNEMtNDYwNDAxNEFCQzFEOjpBRDYxNDY4NjExMg&view_type=cookie_oven
+https://api-ao.adison.co/subscribe/bridge?click_key=MTc4ODA2NDA0MjIxMzo-PDpfX2lkbm9fX2V0RnRvOj48OkF6WEthUmNrZ0hQU2poTmhvZjdBZWNRYQ
+https://hive-fn.qpyou.cn/markup/img/tf/cpbv22/cpbv22_1.html?t=1788085405347
+https://hive-fn.qpyou.cn/markup/img/tf/cpbv22/cpbv22_1.html?t=1788098854100
+https://www.websiteplanet.com/ko/webtools/multiple-url/
+http://nocturne/
+https://github.com/8trz6tzpk6-create/Hyora-study/blob/main/index.html
+https://vercel.com/hyora-study/hyora-study-neon
+https://hyora-study-neon.vercel.app/
+https://hyora-study-neon.vercel.app/
+https://hyora-study-neon.vercel.app/
+https://hyora-study-neon.vercel.app/
